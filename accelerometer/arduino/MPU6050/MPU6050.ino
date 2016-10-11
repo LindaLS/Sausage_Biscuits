@@ -96,6 +96,7 @@ void setup() {
     // (115200 chosen because it is required for Teapot Demo output, but it's
     // really up to you depending on your project)
     Serial.begin(PORT_NUMBER);
+
     //Serial.begin(300);
     while (!Serial); // wait for Leonardo enumeration, others continue immediately
 
@@ -111,19 +112,22 @@ void setup() {
     // verify connection
     mpu.testConnection();
 
-    // wait for ready
-    while (Serial.available() && Serial.read()); // empty buffer
-    while (!Serial.available());                 // wait for data
-    while (Serial.available() && Serial.read()); // empty buffer again
-
+    
+    // wait for ready(Not sure what this is doing)
+    //while (Serial.available() && Serial.read()); // empty buffer
+    //while (!Serial.available());                 // wait for data
+    //while (Serial.available() && Serial.read()); // empty buffer again
+    //Serial.println("Empty Buffer done...");
+    
     // load and configure the DMP
     devStatus = mpu.dmpInitialize();
-
+   
+    
     // supply your own gyro offsets here, scaled for min sensitivity
-    mpu.setXGyroOffset(0);
-    mpu.setYGyroOffset(0);
-    mpu.setZGyroOffset(0);
-    mpu.setZAccelOffset(1688); // 1688 factory default for my test chip
+    mpu.setXGyroOffset(50);
+    mpu.setYGyroOffset(4);
+    mpu.setZGyroOffset(-1);  
+    mpu.setZAccelOffset(1085); // 1688 factory default for my test chip
 
     // make sure it worked (returns 0 if so)
     if (devStatus == 0) {
@@ -259,6 +263,6 @@ void loop() {
     #endif
         // blink LED to indicate activity
         blinkState = !blinkState;
-        //digitalWrite(LED_PIN, blinkState);
+        digitalWrite(LED_PIN, blinkState);
     }
 }

@@ -3,14 +3,15 @@
 # Import libraries
 import time
 import ArduinoReader
+import numpy as np
 
 def sample():
-    ar = ArduinoReader.ArduinoReader('/dev/cu.usbmodem1421', 115200)
+    ar = ArduinoReader.ArduinoReader('COM10', 115200)
     
     print('Waiting for readings to stabilize...')
     time.sleep(30)
-    print('Calibrating...');
-    ar.calibrate();
+    #print('Calibrating...');
+    #ar.calibrate();
     print('Done Calibrating.');
 
     start = time.time()

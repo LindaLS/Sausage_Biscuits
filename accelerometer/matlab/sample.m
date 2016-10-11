@@ -10,14 +10,14 @@ close all;
 addpath('./converters');
 
 % Open Arduino port
-ar = ArduinoReader('/dev/cu.usbmodem1421', 115200);
+ar = ArduinoReader('COM10', 115200);
 
 % Wait for readings to stabilize, then start calibration
 disp('Waiting for readings to stabilize...');
 pause(30)
-disp('Calibrating...');
-ar.calibrate();
-disp('Done Calibrating.');
+%disp('Calibrating...');
+%ar.calibrate();
+%disp('Done Calibrating.');
 
 % Create figure to plot calibrated acceleration
 figure1 = figure;

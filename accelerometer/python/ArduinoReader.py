@@ -37,7 +37,7 @@ class ArduinoReader:
         # Start reading from Arduino port
         #self.arduino_port.open()
         time.sleep(2)
-        self.arduino_port.write('1')
+        #self.arduino_port.write('1')
 
         self.callback_thread = threading.Thread(target=readCallback, args=(self,))
         self.callback_thread.start()
@@ -66,7 +66,7 @@ class ArduinoReader:
     # Calibrate accelerometer readings
     # TODO:Calculate sample rate
     def calibrate(self):
-        N = 100 # Number of sample points
+        N = 2 # Number of sample points
         delta = 0.5 # accepted delta from real gravity. Small delta gives high accuracy but may not converge.
 
         sample_num = 0
