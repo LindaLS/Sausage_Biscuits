@@ -17,7 +17,7 @@ to pass a value of true instead of false.
 #include "BioRadio150DLL.h"
 
 // Multithreading
-#include "pthread.h"
+#include <pthread.h>
 
 #define PROCESS_NUM 1
 
