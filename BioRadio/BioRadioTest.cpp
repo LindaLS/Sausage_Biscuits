@@ -19,21 +19,17 @@ to pass a value of true instead of false.
 // Multithreading
 #include <pthread.h>
 
-#define PROCESS_NUM 1
+const int PROCESS_NUM = 1;
+const int FAST_INPUTS_BUFFER_SIZE = 20000;
+const int SLOW_INPUTS_BUFFER_SIZE = 10000;
+const int ACQUISITION_INTERVAL = 50; // (milliseconds)
 
 using namespace std;
 
+void *data_loop(void* _portName);
+
 int main(int argc, char* argv[])
 {
-    /* set up path to example config file */
-    char *configFileName = "\\ExampleConfig.ini";
-    char* fullConfigFilePath = new char[100];
-    _getcwd(fullConfigFilePath, 100);
-    strcat(fullConfigFilePath, configFileName);
-
-    const int FAST_INPUTS_BUFFER_SIZE = 20000;
-    const int SLOW_INPUTS_BUFFER_SIZE = 10000;
-    const int ACQUISITION_INTERVAL = 50; // (milliseconds)
 
     /* FIND DEVICES */
     const int MAX_DEVICES = 10;
@@ -64,10 +60,16 @@ int main(int argc, char* argv[])
     return 1;
 }
 
-void *data_loop(void* _portName){
+void *data_loop(void* _portName) {
     // Convert args
     char* portName = (char*) _portName;    
     
+    /* set up path to example config file */
+    char *configFileName = "\\ExampleConfig.ini";
+    char* fullConfigFilePath = new char[100];
+    _getcwd(fullConfigFilePath, 100);
+    strcat(fullConfigFilePath, configFileName);
+
     unsigned long int devHandle;
 
     /* Create the BioRadio handle.  Pass a value of true if you are using a legacy Computer Unit to connect to
