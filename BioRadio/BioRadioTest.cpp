@@ -28,6 +28,8 @@ using namespace std;
 
 void *data_loop(void* _portName);
 
+int ACQUIRE_DATA = 1;
+
 int main(int argc, char* argv[])
 {
 
@@ -56,6 +58,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    ACQUIRE_DATA = 0
     system("pause");
     return 1;
 }
@@ -104,7 +107,7 @@ void *data_loop(void* _portName) {
                     int FastInputsNumRead, SlowInputsNumRead, readReturn;
                     int statusCount = 0;
 
-                    while (!kbhit()) {
+                    while (ACQUIRE_DATA) {
                         /* REQUEST DATA EVERY 50MS UNTIL KEY PRESSED */
                         cout << endl << "Tfr Buffer... (" << TransferBuffer(devHandle) << ")" << endl;
                         readReturn = ReadScaledFastAndSlowData(devHandle,
