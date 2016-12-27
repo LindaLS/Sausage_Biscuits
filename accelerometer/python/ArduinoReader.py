@@ -20,7 +20,8 @@ class ArduinoReader:
         self.acceleration = np.matrix('0.0; 0.0; 0.0')
         
         # Accelerometer related values
-        self.gravity = np.matrix('0.0; 0.0; 9.81')
+        self.sensitivity = 1
+        self.gravity_compensation = np.matrix('9.81 -9.81; 9.81 -9.81; 9.81 -9.81')
         self.velocity = np.matrix('0.0; 0.0; 0.0')
         self.displacement = np.matrix('0.0; 0.0; 0.0')
         self.calibration = np.matrix('1.0; 0.0; 1.0; 0.0; 1.0; 0.0')
@@ -53,48 +54,45 @@ class ArduinoReader:
         return q, a
 
     def read(self):
-        q, a = self.raw_read()
+        # Read raw values coming from accelerometer
+        q, a_raw = self.raw_read()
+
+        # Convert from quaternion to rotation matrix
         R = converters.quaternion_to_r(q)
-        g = np.transpose(R) * self.gravity
-        a_real = np.zeros((3, 1));
-        a_real[0] = a[0]*self.calibration[0] + self.calibration[1] - g[0]
-        a_real[1] = a[1]*self.calibration[2] + self.calibration[2] - g[1]
-        a_real[2] = a[2]*self.calibration[4] + self.calibration[5] - g[2]
+
+        # Calculate how much to compensate gravity by
+        gravity_compensation = np.zeros((3, 1))
+        for axis in range(0, 3):
+            # Each axis corresponds to x,y,z
+            if R[2][axis] > 0:
+                # Gravity alignes with +ve axis
+                gravity_compensation[axis] = R[2, axis] * self.gravity_compensation[axis, 0]
+            else:
+                # Gravity alignes with -ve axis
+                gravity_compensation[axis] = -1 * R[2, axis] * self.gravity_compensation[axis, 1]
+        
+        # Calculate acceleration with gravity compensation    
+        a_real = np.multiply(self.sensitivity, a_raw - gravity_compensation)
+        
         return R, a_real
 
     # Calibration function
     # Calibrate accelerometer readings
-    # TODO:Calculate sample rate
-    def calibrate(self):
-        N = 2 # Number of sample points
-        delta = 0.5 # accepted delta from real gravity. Small delta gives high accuracy but may not converge.
+    def calibrate(self, calibration_file):
+        # Get offset constants from file
+        self.sensitivity = 1
+        x = 0
+        y = 1
+        z = 2
+        positive = 0
+        negative = 1
 
-        sample_num = 0
-        M = np.zeros((3*N, 6))
-        y = np.zeros((3*N, 1))
-        lamda = 0.1
-        while sample_num < N:
-            q, a = self.raw_read()
-            magnitude = np.sqrt(np.square(a).sum())
-            
-            if (magnitude > (self.gravity[2]-delta) and magnitude < (self.gravity[2]+delta)):
-                R = converters.quaternion_to_r(q)
-                g = np.transpose(R) * self.gravity
-                M[3*sample_num, 0] = a[0]
-                M[3*sample_num, 1] = 1
-                M[3*sample_num+1, 2] = a[1]
-                M[3*sample_num+1, 3] = 1
-                M[3*sample_num+2, 4] = a[2]
-                M[3*sample_num+2, 5] = 1
-                y[3*sample_num,0] = g[0]
-                y[3*sample_num+1,0] = g[1]
-                y[3*sample_num+2,0] = g[2]
-                sample_num = sample_num + 1
-            
-            time.sleep(0.1)
-
-        # Calibrate using least sum of squares with penalization
-        self.calibration = np.linalg.pinv(np.transpose(M).dot(M) + lamda * np.eye(6)).dot(np.transpose(M)).dot(y)
+        self.gravity_compensation[x, positive] = 8.14
+        self.gravity_compensation[x, negative] = -7.47
+        self.gravity_compensation[y, positive] = 7.72
+        self.gravity_compensation[y, negative] = -7.94
+        self.gravity_compensation[z, positive] = 10.83
+        self.gravity_compensation[z, negative] = -5.7
         
 # This function will keep on reading from the serial port until close() is called.
 # Call using a dedicated thread.

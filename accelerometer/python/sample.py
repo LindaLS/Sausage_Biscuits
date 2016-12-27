@@ -9,18 +9,19 @@ def sample():
     ar = ArduinoReader.ArduinoReader('COM10', 115200)
     
     print('Waiting for readings to stabilize...')
-    time.sleep(30)
-    #print('Calibrating...');
-    #ar.calibrate();
+    time.sleep(3)
+    print('Calibrating...');
+    ar.calibrate('offset1.txt');
     print('Done Calibrating.');
 
     start = time.time()
         
-    while (time.time() - start) < 15 :
+    while (time.time() - start) < 20 :
+        q, a_raw = ar.raw_read()
         R, a = ar.read()
         print(np.transpose(a))
         
-        time.sleep(0.1)
+        time.sleep(0.5)
 
     ar.close()
 

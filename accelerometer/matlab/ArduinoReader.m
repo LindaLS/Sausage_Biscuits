@@ -69,7 +69,7 @@ classdef ArduinoReader < handle
         % TODO:Calculate sample rate
         function [] = calibrate(obj)
             N = 100;
-            delta = 0.5;
+            delta = 8;
 
             sample_num = 0;
             M = zeros(3*N, 6);

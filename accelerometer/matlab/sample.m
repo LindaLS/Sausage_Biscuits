@@ -14,10 +14,10 @@ ar = ArduinoReader('COM10', 115200);
 
 % Wait for readings to stabilize, then start calibration
 disp('Waiting for readings to stabilize...');
-pause(30)
-%disp('Calibrating...');
+pause(3)
+disp('Calibrating...');
 %ar.calibrate();
-%disp('Done Calibrating.');
+disp('Done Calibrating.');
 
 % Create figure to plot calibrated acceleration
 figure1 = figure;

@@ -37,6 +37,7 @@ end
 
 % Get data from each section
 for i = 1:sensorNum
+    % Pretty sure this is a blocking call...
     BioRadioData{i} = BioRadio_Stream( myDevice{i} , listenTime , deviceName{i} );
 end
 
