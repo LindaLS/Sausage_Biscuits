@@ -1,5 +1,5 @@
-% Multichannel plotting.
-% Currently only works with 7 outputs (0 to 6)
+% Calculate cross-correlation between 2 signals.
+% Must have same sampling frequency Fs.
 function [max_corss_corr, C, lag] = cross_correlation_test(signal1, signal2, Fs)
     signal1 = signal1 - mean(signal1);
     signal2 = signal2 - mean(signal2);
