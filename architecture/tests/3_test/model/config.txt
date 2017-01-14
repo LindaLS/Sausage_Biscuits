@@ -1,0 +1,21 @@
+# Configuration file to specify network structure
+# Format: number of units in each layer followed by the activation functions.
+
+# Number of units in each layer
+# First row input layer
+# Last row output layer
+1000
+500
+500
+250
+125
+250
+4
+
+# Activation functions for each layer (except input layer)
+sigmoid
+sigmoid
+sigmoid
+sigmoid
+sigmoid
+sigmoid
