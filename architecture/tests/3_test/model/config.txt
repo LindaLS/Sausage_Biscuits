@@ -8,7 +8,7 @@
 500
 250
 125
-4
+3
 
 # Activation functions for each layer (except input layer)
 sigmoid

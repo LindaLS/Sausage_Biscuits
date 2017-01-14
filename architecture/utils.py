@@ -1,6 +1,8 @@
 import scipy.io as sio
 import numpy as np
 from random import randint
+import scipy.fftpack
+
 
 # we're sampling at 500hz
 n_points_per_sample = 250
@@ -172,10 +174,10 @@ def get_batch_from_raw_data_new_format (data, action_map, inaction):
 			curr_sample_size = 0
 			curr_action = data[1][i][0][0]
 		else:
-			sample[0].append((float(data[0][i][0][0] - 3500)))
-			sample[1].append((float(data[0][i][0][1] - 3500)))
-			sample[2].append((float(data[0][i][0][2] - 3500)))
-			sample[3].append((float(data[0][i][0][3] - 3500)))
+			sample[0].append((float(data[0][i][0][0] - 35000)))
+			sample[1].append((float(data[0][i][0][1] - 35000)))
+			sample[2].append((float(data[0][i][0][2] - 35000)))
+			sample[3].append((float(data[0][i][0][3] - 35000)))
 			curr_sample_size =  curr_sample_size + 1
 
 			if (curr_sample_size == n_points):
