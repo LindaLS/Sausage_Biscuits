@@ -1,7 +1,7 @@
 % Multichannel plotting.
 % Currently only works with 7 outputs (0 to 6)
 function [] = plot_emg(data)
-    [data_array, out_array] = read_emg_data(data)
+    [data_array, out_array] = read_emg_data(data);
     [ch, len] = size(data_array);
 
     figure;
