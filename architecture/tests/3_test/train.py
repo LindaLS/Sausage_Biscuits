@@ -58,22 +58,22 @@ data_test0 = mat_contents_test_0['EMGdata']
 data_test1 = mat_contents_test_1['EMGdata']
 data_test2 = mat_contents_test_2['EMGdata']
 
-sets_y = [10]
-sets_x = [10]
-sets_y[0], sets_x[0] = get_batch_from_raw_data_new_format(data_0, action_map, [0])
-sets_y[1], sets_x[1] = get_batch_from_raw_data_new_format(data_1, action_map, [0])
-sets_y[2], sets_x[2] = get_batch_from_raw_data_new_format(data_2, action_map, [0])
-sets_y[3], sets_x[3] = get_batch_from_raw_data_new_format(data_3, action_map, [0])
-sets_y[4], sets_x[4] = get_batch_from_raw_data_new_format(data_4, action_map, [0])
-sets_y[5], sets_x[5] = get_batch_from_raw_data_new_format(data_5, action_map, [0])
-sets_y[6], sets_x[6] = get_batch_from_raw_data_new_format(data_6, action_map, [0])
-sets_y[7], sets_x[7] = get_batch_from_raw_data_new_format(data_7, action_map, [0])
-sets_y[8], sets_x[8] = get_batch_from_raw_data_new_format(data_8, action_map, [0])
-sets_y[9], sets_x[9] = get_batch_from_raw_data_new_format(data_9, action_map, [0])
+sets_y = [[] for i in range(10)]
+sets_x = [[] for i in range(10)]
+sets_y[0], sets_x[0] = get_batch_from_raw_data_new_format(data_0, action_map, [])
+sets_y[1], sets_x[1] = get_batch_from_raw_data_new_format(data_1, action_map, [])
+sets_y[2], sets_x[2] = get_batch_from_raw_data_new_format(data_2, action_map, [])
+sets_y[3], sets_x[3] = get_batch_from_raw_data_new_format(data_3, action_map, [])
+sets_y[4], sets_x[4] = get_batch_from_raw_data_new_format(data_4, action_map, [])
+sets_y[5], sets_x[5] = get_batch_from_raw_data_new_format(data_5, action_map, [])
+sets_y[6], sets_x[6] = get_batch_from_raw_data_new_format(data_6, action_map, [])
+sets_y[7], sets_x[7] = get_batch_from_raw_data_new_format(data_7, action_map, [])
+sets_y[8], sets_x[8] = get_batch_from_raw_data_new_format(data_8, action_map, [])
+sets_y[9], sets_x[9] = get_batch_from_raw_data_new_format(data_9, action_map, [])
 
-batch_y_test0, batch_x_test0 = get_batch_from_raw_data_new_format(data_test0, action_map, [0])
-batch_y_test1, batch_x_test1 = get_batch_from_raw_data_new_format(data_test1, action_map, [0])
-batch_y_test2, batch_x_test2 = get_batch_from_raw_data_new_format(data_test2, action_map, [0])
+batch_y_test0, batch_x_test0 = get_batch_from_raw_data_new_format(data_test0, action_map, [])
+batch_y_test1, batch_x_test1 = get_batch_from_raw_data_new_format(data_test1, action_map, [])
+batch_y_test2, batch_x_test2 = get_batch_from_raw_data_new_format(data_test2, action_map, [])
 
 
 print("done reading data")
@@ -85,44 +85,45 @@ model = TF_Model('model')
 # Parameters
 learning_rate = 0.01
 training_epochs = 200
-batch_size = 256
+batch_size = 100
 display_step = 1
 examples_to_show = 10
 # total_batch = int(data_set.train.num_examples/batch_size)
 dropout = tf.placeholder(tf.float32)
+
+batches_x, batches_y = create_batches(sets_x, sets_y, batch_size)
 
 # Create variables for inputs, outputs and predictions
 x = tf.placeholder(tf.float32, [None, 1000])
 y = tf.placeholder(tf.float32, [None, 4])
 model_output = model.predict(x)
 
-# Initializing the variables
-init = tf.initialize_all_variables()
-sess = tf.Session()
-sess.run(init)
+cost = tf.reduce_mean(tf.pow(y - model_output, 2))
+optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(cost)
 
 cross_entropy = tf.reduce_mean(-tf.reduce_sum(y * tf.log(model_output), reduction_indices=[1]))
 train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(model_output,1), tf.argmax(y,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+# Initializing the variables
+init = tf.initialize_all_variables()
+sess = tf.Session()
+sess.run(init)
+
+
+
+
 # Train
 for epoch in range(training_epochs):
-    sess.run(train_step, feed_dict={x: batch_x_0, y: batch_y_0})
-    sess.run(train_step, feed_dict={x: batch_x_1, y: batch_y_1})
-    sess.run(train_step, feed_dict={x: batch_x_2, y: batch_y_2})
-    sess.run(train_step, feed_dict={x: batch_x_3, y: batch_y_3})
-    sess.run(train_step, feed_dict={x: batch_x_4, y: batch_y_4})
-    sess.run(train_step, feed_dict={x: batch_x_5, y: batch_y_5})
-    sess.run(train_step, feed_dict={x: batch_x_6, y: batch_y_6})
-    sess.run(train_step, feed_dict={x: batch_x_7, y: batch_y_7})
-    sess.run(train_step, feed_dict={x: batch_x_8, y: batch_y_8})
-    sess.run(train_step, feed_dict={x: batch_x_9, y: batch_y_9})
-
+    for i in range(len(batches_x)):
+        sess.run(train_step, feed_dict={x: batches_x[i], y: batches_y[i]})
+        # _, c = sess.run([optimizer, cost], feed_dict={x: batches_x[i], y:batches_y[i], dropout:0.75})
 
     # Display logs per epoch step
     print("Epoch:", '%04d' % (epoch+1))
     print(sess.run(accuracy, feed_dict={x: batch_x_test0, y: batch_y_test0}))
+    print (model_output.eval(feed_dict={x: batch_x_test0}, session=sess))
     print(sess.run(accuracy, feed_dict={x: batch_x_test1, y: batch_y_test1}))
     print(sess.run(accuracy, feed_dict={x: batch_x_test2, y: batch_y_test2}))
 

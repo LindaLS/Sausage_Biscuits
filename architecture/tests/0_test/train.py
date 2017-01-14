@@ -39,10 +39,10 @@ data_i1 = mat_contents_i1['EMGdata']
 data_i2 = mat_contents_i2['EMGdata']
 data_i3 = mat_contents_i3['EMGdata']
 
-batch_y_i0, batch_x_i0 = get_batch_from_raw_data(data_i0, action_map, [0])
-batch_y_i1, batch_x_i1 = get_batch_from_raw_data(data_i1, action_map, [0])
-batch_y_i2, batch_x_i2 = get_batch_from_raw_data(data_i2, action_map, [0])
-batch_y_i3, batch_x_i3 = get_batch_from_raw_data(data_i3, action_map, [0])
+batch_y_i0, batch_x_i0 = get_batch_from_raw_data(data_i0, action_map, [])
+batch_y_i1, batch_x_i1 = get_batch_from_raw_data(data_i1, action_map, [])
+batch_y_i2, batch_x_i2 = get_batch_from_raw_data(data_i2, action_map, [])
+batch_y_i3, batch_x_i3 = get_batch_from_raw_data(data_i3, action_map, [])
 
 # thumb up
 mat_contents_t0 = sio.loadmat('/home/linda/school/capstone/data/set2/Fred_thumb4.mat')
@@ -54,8 +54,8 @@ action_map[1] = [0,1,0,0]
 data_t0 = mat_contents_t0['EMGdata']
 data_t1 = mat_contents_t1['EMGdata']
 
-batch_y_t0, batch_x_t0 = get_batch_from_raw_data(data_t0, action_map, [0])
-batch_y_t1, batch_x_t1 = get_batch_from_raw_data(data_t1, action_map, [0])
+batch_y_t0, batch_x_t0 = get_batch_from_raw_data(data_t0, action_map, [])
+batch_y_t1, batch_x_t1 = get_batch_from_raw_data(data_t1, action_map, [])
 
 # pinky up
 mat_contents_p0 = sio.loadmat('/home/linda/school/capstone/data/set2/Fred_pinky4.mat')
@@ -69,9 +69,9 @@ data_p0 = mat_contents_p0['EMGdata']
 data_p1 = mat_contents_p1['EMGdata']
 data_p2 = mat_contents_p2['EMGdata']
 
-batch_y_p0, batch_x_p0 = get_batch_from_raw_data(data_p0, action_map, [0])
-batch_y_p1, batch_x_p1 = get_batch_from_raw_data(data_p1, action_map, [0])
-batch_y_p2, batch_x_p2 = get_batch_from_raw_data(data_p2, action_map, [0])
+batch_y_p0, batch_x_p0 = get_batch_from_raw_data(data_p0, action_map, [])
+batch_y_p1, batch_x_p1 = get_batch_from_raw_data(data_p1, action_map, [])
+batch_y_p2, batch_x_p2 = get_batch_from_raw_data(data_p2, action_map, [])
 
 # test set
 mat_contents_test0 = sio.loadmat('/home/linda/school/capstone/data/set2/Fred_thumb_index_pinky0.mat')
@@ -85,8 +85,8 @@ action_map[5] = [1,0,0,0]
 
 data_test0 = mat_contents_test0['EMGdata']
 data_test1 = mat_contents_test1['EMGdata']
-batch_y_test0, batch_x_test0 = get_batch_from_raw_data(data_test0, action_map, [0])
-batch_y_test1, batch_x_test1 = get_batch_from_raw_data(data_test1, action_map, [0])
+batch_y_test0, batch_x_test0 = get_batch_from_raw_data(data_test0, action_map, [])
+batch_y_test1, batch_x_test1 = get_batch_from_raw_data(data_test1, action_map, [])
 
 # Create TF_Model, a wrapper for models created using tensorflow
 # Note that the configuration file 'config.txt' must be present in the directory
@@ -138,10 +138,10 @@ for epoch in range(training_epochs):
 
     # Display logs per epoch step
     print("Epoch:", '%04d' % (epoch+1), "cost=", "{:.9f}".format(c))
-    print(sess.run(cost, feed_dict={x: batch_x_test0, y: batch_y_test0}))
-    print(sess.run(cost, feed_dict={x: batch_x_test1, y: batch_y_test1}))
+    print(sess.run(accuracy, feed_dict={x: batch_x_test0, y: batch_y_test0}))
+    print(sess.run(accuracy, feed_dict={x: batch_x_test1, y: batch_y_test1}))
 print("===final===")
-print(sess.run(cost, feed_dict={x: batch_x_test0, y: batch_y_test0}))
-print(sess.run(cost, feed_dict={x: batch_x_test1, y: batch_y_test1}))
+print(sess.run(accuracy, feed_dict={x: batch_x_test0, y: batch_y_test0}))
+print(sess.run(accuracy, feed_dict={x: batch_x_test1, y: batch_y_test1}))
 # Save
 model.save(sess, 'example_3')

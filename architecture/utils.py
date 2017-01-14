@@ -1,5 +1,6 @@
 import scipy.io as sio
 import numpy as np
+from random import randint
 
 # we're sampling at 500hz
 n_points_per_sample = 250
@@ -171,10 +172,10 @@ def get_batch_from_raw_data_new_format (data, action_map, inaction):
 			curr_sample_size = 0
 			curr_action = data[1][i][0][0]
 		else:
-			sample[0].append((float(data[0][i][0][0])))
-			sample[1].append((float(data[0][i][0][1])))
-			sample[2].append((float(data[0][i][0][2])))
-			sample[3].append((float(data[0][i][0][3])))
+			sample[0].append((float(data[0][i][0][0] - 3500)))
+			sample[1].append((float(data[0][i][0][1] - 3500)))
+			sample[2].append((float(data[0][i][0][2] - 3500)))
+			sample[3].append((float(data[0][i][0][3] - 3500)))
 			curr_sample_size =  curr_sample_size + 1
 
 			if (curr_sample_size == n_points):
@@ -188,3 +189,44 @@ def get_batch_from_raw_data_new_format (data, action_map, inaction):
 
 
 
+def create_batches(sets_x, sets_y, batch_size):
+	set_x = sets_x
+	set_y = sets_y
+	batches_x = []
+	batches_y = []
+
+	batch_x = []
+	batch_y = []
+
+	curr_batch_size = 0
+	while len(set_x) > 0:
+		set_index = randint(0,len(set_x) -1)
+		if len(set_x[set_index]) != 1:
+			sample_index = randint(0,len(set_x[set_index]) - 1)
+		else:
+			sample_index = 0
+
+		batch_x.append(set_x[set_index][sample_index])
+		batch_y.append(set_y[set_index][sample_index])
+
+		set_x[set_index].pop(sample_index)
+		set_y[set_index].pop(sample_index)
+
+		if len(set_x[set_index]) == 0:
+			set_x.pop(set_index)
+			set_y.pop(set_index)
+
+		curr_batch_size += 1
+		if curr_batch_size == batch_size:
+			batches_x.append(np.asarray(batch_x))
+			batches_y.append(np.asarray(batch_y))
+
+			batch_x = []
+			batch_y = []
+			curr_batch_size = 0
+
+	if curr_batch_size > 0:
+		batches_x.append(np.asarray(batch_x))
+		batches_y.append(np.asarray(batch_y))
+
+	return batches_x, batches_y
