@@ -53,8 +53,8 @@ class TF_Model:
             output_num = self.num_units[i+1]
             init_weight = math.sqrt(6/(input_num + output_num))
 
-            W = tf.Variable(tf.random_uniform([input_num, output_num], minval=-1*init_weight, maxval=init_weight))
-            b = tf.Variable(tf.random_uniform([output_num], minval=-1*init_weight, maxval=init_weight))
+            W = tf.Variable(tf.random_normal([input_num, output_num], mean=0.0, stddev=init_weight))
+            b = tf.Variable(tf.random_normal([output_num], mean=0.0, stddev=init_weight))
             self.weights.append((W,b))
 
     def predict(self, x, dropout=1):
