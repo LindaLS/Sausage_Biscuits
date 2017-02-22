@@ -1,11 +1,6 @@
 # Configuration file to specify network structure
-# Format: number of units in each layer followed by the activation functions.
-
-# Number of units in each layer
-# First row input layer
-# Last row output layer
-784
-10
-
-# Activation functions for each layer (except input layer)
-softmax
+# num_neurons = x
+# activation function = x
+# connectivity = [filter width ; stride ; filter number]
+num_neurons = 784
+num_neurons = 10, activation = softmax
