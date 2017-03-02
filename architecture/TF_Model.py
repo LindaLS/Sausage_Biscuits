@@ -16,6 +16,8 @@ class TF_Model:
         self.filter_strides = []
         self.num_filters = []
         self.recurrent_ids = []
+        self.recurrent_layer = [] # Indicates which layer weights to use
+        self.recurrent_layer_set = []
 
         # Read config file
         self.parse_config()
@@ -104,28 +106,49 @@ class TF_Model:
         num_layers = len(self.num_units)
 
         for i in range(num_layers-1):
-            input_num = self.num_units[i]
-            output_num = self.num_units[i+1]
-            filter_width = self.filter_widths[i+1]
-            filter_stride = self.filter_strides[i+1]
-            num_filters = self.num_filters[i+1]
-            partially_connected = self.partially_connected[i+1]
+            current_layer = i+1
 
-            output_per_filter = 0
-            if(partially_connected):
-                output_per_filter = (input_num - filter_width) / filter_stride + 1
-                output_num = int(output_per_filter * num_filters)
-                self.num_units[i+1] = output_num
+            weights_exist = True
+            input_num = self.num_units[current_layer - 1]
+            output_num = self.num_units[current_layer]
+            filter_width = self.filter_widths[current_layer]
+            filter_stride = self.filter_strides[current_layer]
+            num_filters = self.num_filters[current_layer]
+            partially_connected = self.partially_connected[current_layer]
+            recurrent_id = self.recurrent_ids[current_layer]
 
-                init_weight = math.sqrt(3/(filter_width + output_num))
-
-                W = tf.Variable(tf.random_normal([filter_width, 1, num_filters], mean=0.0, stddev=init_weight))
-                b = tf.Variable(tf.random_normal([num_filters], mean=0.0, stddev=init_weight))
+            if(recurrent_id == 0):
+                self.recurrent_layer.append(current_layer)
             else:
-                init_weight = math.sqrt(3/(input_num + output_num))
+                found = False
+                for id_set in self.recurrent_layer_set:
+                    if(id_set[0] == recurrent_id):
+                        found = True
+                        self.recurrent_layer.append(id_set[1])
+                        weights_exist = False
+                        break
+                if(not found):
+                    self.recurrent_layer_set.append((recurrent_id, current_layer))
+                    self.recurrent_layer.append(current_layer)
 
-                W = tf.Variable(tf.random_normal([input_num, output_num], mean=0.0, stddev=init_weight))
-                b = tf.Variable(tf.random_normal([output_num], mean=0.0, stddev=init_weight))
+            W = 0
+            b = 0
+            if(weights_exist):
+                output_per_filter = 0
+                if(partially_connected):
+                    output_per_filter = (input_num - filter_width) / filter_stride + 1
+                    output_num = int(output_per_filter * num_filters)
+                    self.num_units[i+1] = output_num
+
+                    init_weight = math.sqrt(3/(filter_width + output_num))
+
+                    W = tf.Variable(tf.random_normal([filter_width, 1, num_filters], mean=0.0, stddev=init_weight))
+                    b = tf.Variable(tf.random_normal([num_filters], mean=0.0, stddev=init_weight))
+                else:
+                    init_weight = math.sqrt(3/(input_num + output_num))
+
+                    W = tf.Variable(tf.random_normal([input_num, output_num], mean=0.0, stddev=init_weight))
+                    b = tf.Variable(tf.random_normal([output_num], mean=0.0, stddev=init_weight))
 
             self.weights.append((W,b))
 
@@ -138,9 +161,11 @@ class TF_Model:
         num_inputs = temp[0]
         current = x
         for i in range(output_layer-1):
-            partially_connected = self.partially_connected[i+1]
-            activation_function = self.activation_functions[i+1]
-            weights = self.weights[i]
+            current_layer = i+1
+
+            partially_connected = self.partially_connected[current_layer]
+            activation_function = self.activation_functions[current_layer]
+            weights = self.weights[self.recurrent_layer[current_layer-1]-1]
             W = weights[0]
             b = weights[1]
 
