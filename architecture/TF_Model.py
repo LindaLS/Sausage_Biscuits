@@ -129,11 +129,15 @@ class TF_Model:
 
             self.weights.append((W,b))
 
-    def predict(self, x, dropout=1):
+    def predict(self, x, dropout=1, layer=0):
+        output_layer = len(self.num_units)
+        if(layer != 0):
+            output_layer = layer
+
         temp = tf.shape(x)
         num_inputs = temp[0]
         current = x
-        for i in range(len(self.activation_functions)-1):
+        for i in range(output_layer-1):
             partially_connected = self.partially_connected[i+1]
             activation_function = self.activation_functions[i+1]
             weights = self.weights[i]
