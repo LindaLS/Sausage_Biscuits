@@ -145,22 +145,6 @@ def get_batch_from_raw_data_new_format (data, action_map, inaction):
 	inaction_sum = [0,0,0,0]
 	n_averages = 0
 
-	# for i in range(data.shape[1]):
-	# 	if data[1][i][0][0] in inaction:
-	# 		inaction_sum[0] = inaction_sum[0] + abs((float(data[0][i][0][0])) - 3500)
-	# 		inaction_sum[1] = inaction_sum[1] + abs((float(data[0][i][0][1])) - 3500)
-	# 		inaction_sum[2] = inaction_sum[2] + abs((float(data[0][i][0][2])) - 3500)
-	# 		inaction_sum[3] = inaction_sum[3] + abs((float(data[0][i][0][3])) - 3500)
-
-	# 		n_averages = n_averages + 1
-
-
-	# inaction_sum[0] = inaction_sum[0]/n_averages
-	# inaction_sum[1] = inaction_sum[1]/n_averages
-	# inaction_sum[2] = inaction_sum[2]/n_averages
-	# inaction_sum[3] = inaction_sum[3]/n_averages
-
-
 	for i in range(data.shape[1]):
 
 		if data[1][i][0][0] in inaction:
