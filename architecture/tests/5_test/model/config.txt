@@ -1,0 +1,5 @@
+
+num_neurons = 1000
+num_neurons = 1000, activation = sigmoid
+num_neurons = 100, activation = sigmoid
+num_neurons = 10, activation = linear

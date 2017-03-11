@@ -216,3 +216,97 @@ def create_batches(sets_x, sets_y, batch_size):
 		batches_y.append(np.asarray(batch_y))
 
 	return batches_x, batches_y
+
+
+def get_batch_shifted(data, action_map, n_channels, inaction):
+
+	n_points = 250
+	batch_x = []
+	batch_y = []
+	sample = [[],[],[],[]]
+	curr_sample_size = 0
+	curr_action = 0
+
+	inaction_sum = [0,0,0,0]
+	n_averages = 0
+
+	for i in range(data.shape[1]):
+
+		if data[1][i][0][0] in inaction:
+			continue
+
+
+		if curr_action != data[1][i][0][0]:
+			# a different sample, clear everything
+			# don't store the first one, it could be contaminated
+			sample = [[],[],[],[]]
+			curr_sample_size = 0
+			curr_action = data[1][i][0][0]
+		else:
+			sample[0].append((float(data[0][i][0][0] - 35000)))
+			sample[1].append((float(data[0][i][0][1] - 35000)))
+			sample[2].append((float(data[0][i][0][2] - 35000)))
+			sample[3].append((float(data[0][i][0][3] - 35000)))
+			curr_sample_size =  curr_sample_size + 1
+
+			if (curr_sample_size == n_points):
+				data_set = sample[0] + sample[1] + sample[2] + sample[3]
+				batch_x.append(np.asarray(data_set))
+				batch_y.append(np.asarray(action_map[curr_action]))
+				curr_sample_size = 0
+				sample = [[],[],[],[]]
+
+	return batch_y, batch_x
+
+def create_batches_and_test(sets_x, sets_y, batch_size, test_percent):
+	set_x = sets_x
+	set_y = sets_y
+	batches_x = []
+	batches_y = []
+	test_batches_x = []
+	test_batches_y = []
+
+	batch_x = []
+	batch_y = []
+
+	curr_batch_size = 0
+	curr_test_batch_size = 0
+	while len(set_x) > 0:
+		set_index = randint(0,len(set_x) -1)
+		if len(set_x[set_index]) != 1:
+			sample_index = randint(0,len(set_x[set_index]) - 1)
+		else:
+			sample_index = 0
+
+		keep = randint(0,100)
+		if keep > test_percent:
+			batch_x.append(set_x[set_index][sample_index])
+			batch_y.append(set_y[set_index][sample_index])
+		else:
+			test_batches_x.append(set_x[set_index][sample_index])
+			test_batches_y.append(set_y[set_index][sample_index])
+
+
+		set_x[set_index].pop(sample_index)
+		set_y[set_index].pop(sample_index)
+
+		if len(set_x[set_index]) == 0:
+			set_x.pop(set_index)
+			set_y.pop(set_index)
+
+		curr_batch_size += 1
+		if curr_batch_size == batch_size:
+			batches_x.append(np.asarray(batch_x))
+			batches_y.append(np.asarray(batch_y))
+
+			batch_x = []
+			batch_y = []
+			curr_batch_size = 0
+
+
+	if curr_batch_size > 0:
+		batches_x.append(np.asarray(batch_x))
+		batches_y.append(np.asarray(batch_y))
+
+
+	return batches_x, batches_y, test_batches_x, test_batches_y
