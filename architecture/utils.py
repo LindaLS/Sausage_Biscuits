@@ -220,16 +220,17 @@ def create_batches(sets_x, sets_y, batch_size):
 
 def get_batch_shifted(data, action_map, n_channels, inaction):
 
-	n_points = 250
+	n_points = 200
 	batch_x = []
 	batch_y = []
-	sample = [[],[],[],[]]
+	sample = [[] for c in range(n_channels)]
 	curr_sample_size = 0
 	curr_action = 0
 
-	inaction_sum = [0,0,0,0]
+	inaction_sum = [0 for c in range(n_channels)]
 	n_averages = 0
 
+	print(n_channels)
 	for i in range(data.shape[1]):
 
 		if data[1][i][0][0] in inaction:
@@ -239,22 +240,22 @@ def get_batch_shifted(data, action_map, n_channels, inaction):
 		if curr_action != data[1][i][0][0]:
 			# a different sample, clear everything
 			# don't store the first one, it could be contaminated
-			sample = [[],[],[],[]]
+			sample = [[] for c in range(n_channels)]
 			curr_sample_size = 0
 			curr_action = data[1][i][0][0]
 		else:
-			sample[0].append((float(data[0][i][0][0] - 35000)))
-			sample[1].append((float(data[0][i][0][1] - 35000)))
-			sample[2].append((float(data[0][i][0][2] - 35000)))
-			sample[3].append((float(data[0][i][0][3] - 35000)))
+			for c in range(n_channels):
+				sample[c].append((float(data[0][i][0][c] - 350)))
 			curr_sample_size =  curr_sample_size + 1
 
 			if (curr_sample_size == n_points):
-				data_set = sample[0] + sample[1] + sample[2] + sample[3]
+				data_set = sample[0]
+				for c in range(n_channels - 1):
+					data_set = data_set + sample[c+1]
 				batch_x.append(np.asarray(data_set))
 				batch_y.append(np.asarray(action_map[curr_action]))
 				curr_sample_size = 0
-				sample = [[],[],[],[]]
+				sample = [[] for c in range(n_channels)]
 
 	return batch_y, batch_x
 

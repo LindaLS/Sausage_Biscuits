@@ -22,6 +22,8 @@ from load_all_data import *
 
 data_path = ("../../")
 
+np.set_printoptions(threshold=np.nan)
+
 
 
 # Create TF_Model, a wrapper for models created using tensorflow
@@ -30,9 +32,9 @@ model = TF_Model('model')
 
 
 # Parameters
-learning_rate = 1e-8
-training_epochs = 3000
-batch_size = 400
+learning_rate = 1e-4
+training_epochs = 6000
+batch_size = 50
 display_step = 10
 examples_to_show = 10
 # total_batch = int(data_set.train.num_examples/batch_size)
@@ -42,8 +44,8 @@ batches_y, batches_x, test_batch_y, test_batch_x = get_data(data_path, batch_siz
 
 # Create variables for inputs, outputs and predictions
 x = tf.placeholder(tf.float32, [None, 1000])
-y = tf.placeholder(tf.float32, [None, 10])
-model_output = model.predict(x)
+y = tf.placeholder(tf.float32, [None, 5])
+model_output = model.predict(x, dropout=0.3)
 
 cost = tf.reduce_mean(tf.pow(y - model_output, 2))
 
@@ -63,12 +65,13 @@ print (len(batches_x))
 # Train
 for epoch in range(training_epochs):
     for i in range(len(batches_x)):
-        _, c = sess.run([train_step, cost], feed_dict={x: batches_x[i], y:batches_y[i], dropout:1})
+        _, c = sess.run([train_step, cost], feed_dict={x: batches_x[i], y:batches_y[i], dropout:0.3})
 
     # Display logs per epoch step
     if epoch % display_step == 0:
         # print("Epoch:", '%04d' % (epoch+1))
         print("Epoch:", '%04d' % (epoch+1), "cost=", "{:.9f}".format(c))
+        # print(sess.run(model_output, feed_dict={x: batches_x[0], y: batches_y[0]}))
         print(sess.run(accuracy, feed_dict={x: batches_x[0], y: batches_y[0]}))
         print(sess.run(accuracy, feed_dict={x: test_batch_x, y: test_batch_y}))
 
