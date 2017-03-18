@@ -2,7 +2,7 @@ import scipy.io as sio
 import numpy as np
 from random import randint
 import scipy.fftpack
-
+import pywt as pywt
 
 # we're sampling at 500hz
 n_points_per_sample = 250
@@ -341,6 +341,68 @@ def get_batch_shifted(data, action_map, n_channels, inaction):
 				curr_sample_size = 0
 				sample = [[] for c in range(n_channels)]
 
+	return batch_y, batch_x
+
+# don't need this here
+# the wavelet transfor should be done in create batches
+def get_batch_wavelet(data, action_map, n_channels, inaction):
+
+	n_points = 400
+	batch_x = None
+	batch_y = []
+	sample = [[] for c in range(n_channels)]
+	curr_sample_size = 0
+	curr_action = 0
+
+	inaction_sum = [0 for c in range(n_channels)]
+	n_averages = 0
+	waveletlvl = 129
+
+	print(n_channels)
+	for i in range(data.shape[1]):
+
+		if data[1][i][0][0] in inaction:
+			continue
+
+		if curr_action != data[1][i][0][0]:
+			# a different sample, clear everything
+			# don't store the first one, it could be contaminated
+			sample = [[] for c in range(n_channels)]
+			curr_sample_size = 0
+			curr_action = data[1][i][0][0]
+		else:
+			for c in range(n_channels):
+				sample[c].append((float(data[0][i][0][c])))
+			curr_sample_size =  curr_sample_size + 1
+
+			# perform wavlet transform on these points
+			if (curr_sample_size == n_points):
+				widths = np.arange(1, waveletlvl)
+
+				# data_set = sample[0]
+				# for c in range(n_channels - 1):
+				# 	data_set = data_set + sample[c+1]
+
+				for i in range(5):
+				    if i:
+				        input1, freqs = pywt.cwt(sample[i], widths, 'morl')
+				        inputs = np.concatenate((inputs,input1), axis=0)
+				    else:
+				        inputs, freqs = pywt.cwt(sample[i], widths, 'morl')
+
+				d = np.matrix.transpose(inputs)
+				if batch_x == None:
+					batch_x = d
+				else:
+					batch_x =np.concatenate( (batch_x, d), axis=0)
+				for i in range(400):
+					batch_y.append(np.asarray(action_map[curr_action]))
+
+				curr_sample_size = 0
+				sample = [[] for c in range(n_channels)]
+
+	print(len(batch_x))
+	print(len(batch_y))
 	return batch_y, batch_x
 
 def create_batches_and_test(sets_x, sets_y, batch_size, test_percent):
